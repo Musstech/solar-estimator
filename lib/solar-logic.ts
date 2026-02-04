@@ -1,61 +1,98 @@
 import { SOLAR_CONSTANTS } from "./constants";
 
-interface CalculatorInputs {
-    monthlyBill: number; // in Naira
-    sunHours?: number; // defaults to constant
-    panelWattage?: number; // defaults to 550W
-    isOffGrid?: boolean;
+export interface ApplianceLoad {
+    id: string;
+    name: string;
+    wattage: number;
+    quantity: number;
+    hoursPerDay: number;
 }
 
-export interface CalculationResult {
-    dailyEnergyNeed: number; // kWh
-    requiredSystemSize: number; // kW
+export interface TechnicalResult {
+    totalDailyLoadKWh: number;
+    peakLoadWatts: number;
+    requiredPanelCapacityKW: number;
     panelCount: number;
-    batteryCapacity: number; // kWh
+    requiredInverterKVA: number;
+    batteryBankKWh: number;
+    batteryCount: number;
     estimatedCost: {
         min: number;
         max: number;
     };
+    savingsPerYear: number;
 }
 
-export const calculateSolarSystem = ({
-    monthlyBill,
-    sunHours = SOLAR_CONSTANTS.AVG_SUN_HOURS,
-    panelWattage = 550,
-    isOffGrid = false,
-}: CalculatorInputs): CalculationResult => {
-    // 1. Calculate Daily Usage (kWh)
-    // Bill / Cost per kWh / 30 days
-    const dailyEnergyNeed = (monthlyBill / SOLAR_CONSTANTS.COST_PER_KWH) / 30;
+/**
+ * Calculates technical solar requirements based on appliance loads
+ */
+export const calculateTechnicalSizing = (loads: ApplianceLoad[]): TechnicalResult => {
+    // 1. Calculate Daily Energy Consumption (kWh)
+    const totalDailyLoadWh = loads.reduce(
+        (sum, load) => sum + (load.wattage * load.quantity * load.hoursPerDay),
+        0
+    );
+    const dailyKWh = totalDailyLoadWh / 1000;
 
-    // 2. Required Inverter/System Loading (kW)
-    // Formula: (Daily Energy / Sun Hours) * Efficiency Factor
-    const requiredSystemSize = (dailyEnergyNeed / sunHours) * SOLAR_CONSTANTS.EFFICIENCY_LOSS;
+    // 2. Peak Load (Concurrent Watts)
+    const peakWatts = loads.reduce((sum, load) => sum + (load.wattage * load.quantity), 0);
 
-    // 3. Panel Count
-    // (System Size in kW * 1000) / Panel Wattage
-    const rawPanelCount = (requiredSystemSize * 1000) / panelWattage;
-    const panelCount = Math.ceil(rawPanelCount);
+    // 3. Recommended Panel Capacity (Based on avg 4.5 Sun Hours in Nigeria)
+    const sunHours = 4.5;
+    const requiredPanelKW = (dailyKWh / sunHours) * 1.25; // 25% safety margin
+    const panelCount = Math.ceil((requiredPanelKW * 1000) / 450); // Assuming 450W panels
 
-    // 4. Battery Bank (kWh)
-    // If Off-Grid: Needs to cover Night Usage + buffer
-    // Formula: Daily Need * Night Ratio * Autonomy (1.5 days for offgrid) / Depth of Discharge
-    const autonomyDays = isOffGrid ? 1.5 : 1.0;
-    const batteryCapacity = (dailyEnergyNeed * SOLAR_CONSTANTS.NIGHT_USAGE_RATIO * autonomyDays) / SOLAR_CONSTANTS.BATTERY_DEPTH_OF_DISCHARGE;
+    // 4. Inverter Size (kVA)
+    // Formula: (Watts / Power Factor 0.8) / 1000 * Safety Margin
+    const requiredInverterKVA = (peakWatts / 0.8) / 1000 * 1.25;
 
-    // 5. Estimated Cost (Rough Market Estimates in Naira)
-    // ~800k Naira per kW installed (very rough heuristic)
-    const baseCostPerKW = 800000;
-    const systemCost = requiredSystemSize * baseCostPerKW;
+    // 5. Battery Bank (kWh)
+    // Assuming 50% Depth of Discharge for longevity and 1 day autonomy
+    const batteryKWh = dailyKWh / 0.5;
+    // Assuming standard 12V 200Ah (2.4kWh) batteries
+    const batteryCount = Math.ceil(batteryKWh / 2.4);
+
+    // 6. Cost Estimation (₦)
+    // Hybrid system estimated at ~₦750,000 per kWh of needed daily capacity
+    const baseCost = dailyKWh * 750000;
+
+    // 7. Savings (₦)
+    // Assuming avg cost of grid + fuel is ₦120 per kWh
+    const annualEnergyNeeded = dailyKWh * 365;
+    const savingsPerYear = annualEnergyNeeded * 120;
 
     return {
-        dailyEnergyNeed: Number(dailyEnergyNeed.toFixed(2)),
-        requiredSystemSize: Number(requiredSystemSize.toFixed(2)),
+        totalDailyLoadKWh: parseFloat(dailyKWh.toFixed(2)),
+        peakLoadWatts: peakWatts,
+        requiredPanelCapacityKW: parseFloat(requiredPanelKW.toFixed(2)),
         panelCount,
-        batteryCapacity: Number(batteryCapacity.toFixed(2)),
+        requiredInverterKVA: parseFloat(requiredInverterKVA.toFixed(1)),
+        batteryBankKWh: parseFloat(batteryKWh.toFixed(2)),
+        batteryCount,
         estimatedCost: {
-            min: Math.floor(systemCost * 0.9),
-            max: Math.ceil(systemCost * 1.1),
+            min: baseCost * 0.9,
+            max: baseCost * 1.15
         },
+        savingsPerYear
     };
+};
+
+/**
+ * Legacy support for bill-based estimates
+ */
+export const calculateSolarEstimate = (monthlyBill: number) => {
+    const kwhPrice = 70; // Avg kWh price
+    const monthlyKWh = monthlyBill / kwhPrice;
+    const dailyKWh = monthlyKWh / 30;
+
+    // Convert bill to a mock appliance load for processing
+    const mockLoad: ApplianceLoad = {
+        id: "legacy",
+        name: "General Home Load",
+        wattage: (dailyKWh * 1000) / 24, // Distributed hourly
+        quantity: 1,
+        hoursPerDay: 24
+    };
+
+    return calculateTechnicalSizing([mockLoad]);
 };
