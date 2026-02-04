@@ -45,12 +45,15 @@ export const ChatWidget = () => {
         setIsLoading(true);
 
         try {
+            // Updated to be more specific about language needs
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: userMsg.text,
                     sessionId: sessionId.current,
+                    // Pass specific instruction to stick to the input's language
+                    systemLanguagePreference: "Match input language. Do not code-switch unless requested."
                 }),
             });
 
@@ -100,8 +103,8 @@ export const ChatWidget = () => {
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                                 <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${msg.sender === "user"
-                                        ? "bg-navy text-white rounded-br-none"
-                                        : "bg-white border border-slate-200 text-navy rounded-bl-none shadow-sm"
+                                    ? "bg-navy text-white rounded-br-none"
+                                    : "bg-white border border-slate-200 text-navy rounded-bl-none shadow-sm"
                                     }`}>
                                     {msg.text}
                                 </div>

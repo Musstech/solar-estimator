@@ -21,3 +21,7 @@ export const authOptions: NextAuthOptions = {
     },
     secret: process.env.NEXTAUTH_SECRET,
 };
+
+if (!process.env.NEXTAUTH_SECRET) {
+    console.warn("⚠️ NEXTAUTH_SECRET is not defined. Production login may fail.");
+}

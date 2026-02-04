@@ -1,8 +1,10 @@
 import { CalculatorForm } from "@/components/calculator/CalculatorForm";
+import { NavMenu } from "@/components/ui/NavMenu";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+      <NavMenu />
       <div className="text-center mb-10 space-y-2 animate-in fade-in slide-in-from-top-4 duration-500">
         <h1 className="text-h1 tracking-tight">
           MSE Solar Estimator

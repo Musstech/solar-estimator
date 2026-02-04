@@ -28,7 +28,10 @@ export default function DashboardPage() {
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
                     <h3 className="text-xl font-display font-bold text-navy">Recent Inquiries</h3>
-                    <button className="text-sm bg-navy text-white px-4 py-2 rounded-lg hover:bg-navy-light transition-all">
+                    <button
+                        onClick={() => alert("CSV Export coming soon! Your data is safe in n8n.")}
+                        className="text-sm bg-navy text-white px-4 py-2 rounded-lg hover:bg-navy-light transition-all"
+                    >
                         Export CSV
                     </button>
                 </div>
