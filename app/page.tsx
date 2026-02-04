@@ -16,10 +16,6 @@ export default function Home() {
 
       <footer className="mt-12 text-center text-sm text-grey">
         <p>&copy; {new Date().getFullYear()} Musstech Solar Estimator. All rights reserved.</p>
-        <div className="mt-4 flex justify-center gap-6">
-          <a href="/dashboard/login" className="hover:text-navy transition-colors">Installer Login</a>
-          <a href="/dashboard" className="hover:text-navy transition-colors">Installer Dashboard</a>
-        </div>
       </footer>
     </div>
   );

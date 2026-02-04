@@ -1,52 +1,39 @@
+"use client";
+
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 export default function SettingsPage() {
     return (
-        <div className="max-w-4xl space-y-8 animate-in fade-in duration-500">
-            <div>
-                <h1 className="text-2xl font-display font-bold text-navy">Account Settings</h1>
-                <p className="text-grey text-sm">Manage your professional profile and app preferences.</p>
-            </div>
+        <div className="space-y-6">
+            <header>
+                <h1 className="text-2xl font-display font-bold text-navy">Installer Settings</h1>
+                <p className="text-slate-500">Configure your profile and API integrations.</p>
+            </header>
 
-            <div className="grid gap-8">
-                <Card className="space-y-6">
-                    <h3 className="text-lg font-bold text-navy border-b border-slate-100 pb-2">Profile Information</h3>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <Input label="Full Name" defaultValue="John Doe" />
-                        <Input label="Business Name" defaultValue="Musstech Solar Solutions" />
-                        <Input label="Contact Email" defaultValue="installer@musstech.com" disabled />
-                        <Input label="Phone Number" defaultValue="+234 800 000 0000" />
-                    </div>
-                    <div className="flex justify-end pt-4">
-                        <Button variant="primary">Save Changes</Button>
-                    </div>
+            <div className="grid md:grid-cols-2 gap-6">
+                <Card title="Business Profile">
+                    <form className="space-y-4">
+                        <Input label="Company Name" defaultValue="Musstech Solar" />
+                        <Input label="Business Address" defaultValue="Lagos, Nigeria" />
+                        <Button variant="primary">Save Profile</Button>
+                    </form>
                 </Card>
 
-                <Card className="space-y-6">
-                    <h3 className="text-lg font-bold text-navy border-b border-slate-100 pb-2">Notifications</h3>
+                <Card title="API Configuration">
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="font-medium text-navy">New Lead Alerts</p>
-                                <p className="text-xs text-grey">Receive an email when a new calculation is submitted.</p>
-                            </div>
-                            <input type="checkbox" defaultChecked className="w-5 h-5 accent-green" />
+                        <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <p className="text-xs font-bold text-navy uppercase mb-2">n8n Leads Webhook</p>
+                            <code className="text-xs text-green break-all">
+                                {process.env.NEXT_PUBLIC_N8N_LEADS_URL || "Not Configured"}
+                            </code>
                         </div>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="font-medium text-navy">Weekly Reports</p>
-                                <p className="text-xs text-grey">Summary of your performance every Monday.</p>
-                            </div>
-                            <input type="checkbox" className="w-5 h-5 accent-green" />
-                        </div>
+                        <p className="text-xs text-slate-400">
+                            Updates safely via environment variables in Vercel.
+                        </p>
                     </div>
                 </Card>
-
-                <div className="flex justify-start">
-                    <button className="text-red-500 font-bold hover:underline">Log Out</button>
-                </div>
             </div>
         </div>
     );
