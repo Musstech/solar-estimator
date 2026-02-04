@@ -9,7 +9,7 @@ export const NavMenu = () => {
     const { data: session } = useSession();
 
     return (
-        <div className="fixed top-6 left-6 z-[60]">
+        <div className="fixed top-6 left-6 z-[9999]">
             {/* 3-Dots Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
