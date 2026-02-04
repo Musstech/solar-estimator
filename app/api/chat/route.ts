@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
     try {
-        const { message, sessionId } = await req.json();
+        const { message, sessionId, systemLanguagePreference } = await req.json();
 
         // The n8n Webhook URL for the "solar chatbot"
         // This is now pulled from an environment variable for security
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
                 action: 'sendMessage',
                 sessionId: sessionId,
                 chatInput: message,
+                language_preference: systemLanguagePreference
             }),
         });
 

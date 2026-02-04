@@ -99,11 +99,11 @@ export const ChatWidget = () => {
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50">
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
-                                <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${msg.sender === "user"
-                                    ? "bg-navy text-white rounded-br-none"
+                                <div className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm leading-relaxed ${msg.sender === "user"
+                                    ? "bg-navy text-white rounded-br-none shadow-md"
                                     : "bg-white border border-slate-200 text-navy rounded-bl-none shadow-sm"
                                     }`}>
                                     {msg.text}
@@ -112,11 +112,11 @@ export const ChatWidget = () => {
                         ))}
                         {isLoading && (
                             <div className="flex justify-start">
-                                <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none px-4 py-2 shadow-sm">
-                                    <span className="flex space-x-1">
-                                        <span className="w-2 h-2 bg-grey-light rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                        <span className="w-2 h-2 bg-grey-light rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                        <span className="w-2 h-2 bg-grey-light rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none px-5 py-3 shadow-sm">
+                                    <span className="flex space-x-2">
+                                        <span className="w-2 h-2 bg-green rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                        <span className="w-2 h-2 bg-green rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                        <span className="w-2 h-2 bg-green rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                                     </span>
                                 </div>
                             </div>
