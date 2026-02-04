@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { formatCurrency } from "@/lib/constants";
 
 interface Lead {
@@ -11,14 +12,56 @@ interface Lead {
     status: "New" | "Contacted" | "In Progress" | "Closed";
 }
 
-const mockLeads: Lead[] = [
-    { id: "1", date: "2026-02-03", name: "Alice Johnson", bill: 45000, systemSize: "12 kW", status: "New" },
-    { id: "2", date: "2026-02-02", name: "Bob Smith", bill: 120000, systemSize: "32 kW", status: "Contacted" },
-    { id: "3", date: "2026-02-01", name: "Charlie Davis", bill: 30000, systemSize: "8 kW", status: "In Progress" },
-    { id: "4", date: "2026-01-31", name: "David Wilson", bill: 65000, systemSize: "18 kW", status: "Closed" },
-];
-
 export const LeadsTable = () => {
+    const [leads, setLeads] = useState<Lead[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchLeads = async () => {
+            try {
+                const response = await fetch("/api/dashboard/leads");
+                if (!response.ok) throw new Error("Failed to fetch leads");
+                const data = await response.json();
+                setLeads(data);
+            } catch (err) {
+                setError("Could not load leads. Please try again later.");
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchLeads();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="bg-white rounded-xl p-12 text-center border border-slate-200 shadow-sm">
+                <div className="animate-spin text-4xl mb-4 inline-block">⏳</div>
+                <p className="text-grey font-medium">Fetching the latest leads...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="bg-white rounded-xl p-12 text-center border border-slate-200 shadow-sm">
+                <div className="text-4xl mb-4">⚠️</div>
+                <p className="text-red-500 font-medium">{error}</p>
+            </div>
+        );
+    }
+
+    if (leads.length === 0) {
+        return (
+            <div className="bg-white rounded-xl p-12 text-center border border-slate-200 shadow-sm">
+                <div className="text-4xl mb-4 text-slate-300">📁</div>
+                <p className="text-grey font-medium">No leads found yet.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
@@ -34,7 +77,7 @@ export const LeadsTable = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {mockLeads.map((lead) => (
+                        {leads.map((lead) => (
                             <tr key={lead.id} className="hover:bg-slate-50 transition-colors">
                                 <td className="px-6 py-4 font-medium text-navy">{lead.name}</td>
                                 <td className="px-6 py-4 text-sm text-grey">{lead.date}</td>
@@ -42,9 +85,9 @@ export const LeadsTable = () => {
                                 <td className="px-6 py-4 text-sm font-bold text-green">{lead.systemSize}</td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-1 rounded-full text-xs font-bold ${lead.status === "New" ? "bg-blue/10 text-blue" :
-                                            lead.status === "Contacted" ? "bg-gold/10 text-gold" :
-                                                lead.status === "In Progress" ? "bg-green/10 text-green" :
-                                                    "bg-grey-light text-grey"
+                                        lead.status === "Contacted" ? "bg-gold/10 text-gold" :
+                                            lead.status === "In Progress" ? "bg-green/10 text-green" :
+                                                "bg-grey-light text-grey"
                                         }`}>
                                         {lead.status}
                                     </span>
