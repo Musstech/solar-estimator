@@ -1,4 +1,3 @@
-import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 
 export const authConfig = {
@@ -12,7 +11,7 @@ export const authConfig = {
         signIn: "/dashboard/login",
     },
     callbacks: {
-        authorized({ auth, request: { nextUrl } }) {
+        authorized({ auth, request: { nextUrl } }: { auth: any; request: { nextUrl: any } }) {
             const isLoggedIn = !!auth?.user;
             const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
             if (isOnDashboard) {
@@ -22,4 +21,4 @@ export const authConfig = {
             return true;
         },
     },
-} satisfies NextAuthConfig;
+};
