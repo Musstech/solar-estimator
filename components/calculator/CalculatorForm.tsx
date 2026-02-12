@@ -5,13 +5,15 @@ import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Card } from "../ui/Card";
 import { calculateTechnicalSizing, TechnicalResult, ApplianceLoad } from "@/lib/solar-logic";
-import { formatCurrency, APPLIANCE_PRESETS, PANEL_OPTIONS } from "@/lib/constants";
+import { formatCurrency, APPLIANCE_PRESETS } from "@/lib/constants";
+import { PaymentModal } from "../payment/PaymentModal";
+import { generateSolarPDF } from "@/lib/report-generator";
+import { FileText, Download } from "lucide-react";
 
 export const CalculatorForm = () => {
     // Calculator State
     const [loads, setLoads] = useState<ApplianceLoad[]>([]);
     const [selectedPreset, setSelectedPreset] = useState("");
-    const [panelWattage, setPanelWattage] = useState(450);
     const [result, setResult] = useState<TechnicalResult | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -20,6 +22,9 @@ export const CalculatorForm = () => {
     const [leadData, setLeadData] = useState({ name: "", email: "", phone: "" });
     const [submitLoading, setSubmitLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+
+    // Payment State
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     const addAppliance = () => {
         const preset = APPLIANCE_PRESETS.find(p => p.name === selectedPreset);
@@ -81,6 +86,20 @@ export const CalculatorForm = () => {
             console.error("Failed to submit lead:", error);
         } finally {
             setSubmitLoading(false);
+        }
+    };
+
+    const handlePaymentSuccess = (reference: any) => {
+        console.log("Payment Successful:", reference);
+        setShowPaymentModal(false);
+
+        // Generate PDF
+        if (result) {
+            generateSolarPDF({
+                clientName: leadData.name || "Valued Client",
+                loads: loads,
+                results: result
+            });
         }
     };
 
@@ -203,6 +222,18 @@ export const CalculatorForm = () => {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green/10 rounded-full -mr-16 -mt-16" />
                     </Card>
 
+                    {/* Premium Report CTA */}
+                    <div className="flex justify-center">
+                        <Button
+                            variant="secondary"
+                            className="gap-2 border-2 border-green text-green hover:bg-green hover:text-white transition-colors"
+                            onClick={() => setShowPaymentModal(true)}
+                        >
+                            <FileText size={18} />
+                            Download Professional Engineering Report (₦2,000)
+                        </Button>
+                    </div>
+
                     {showLeadForm && !submitted && (
                         <Card title="Get a Professional Quote" className="bg-slate-50 border-2 border-green animate-in zoom-in duration-500">
                             <p className="mb-6 text-slate-600">Our engineers will perform a site inspection and provide a finalized hardware bill of materials.</p>
@@ -249,6 +280,15 @@ export const CalculatorForm = () => {
                         </Card>
                     )}
                 </div>
+            )}
+
+            {showPaymentModal && (
+                <PaymentModal
+                    amount={2000}
+                    email={leadData.email || "customer@example.com"}
+                    onSuccess={handlePaymentSuccess}
+                    onClose={() => setShowPaymentModal(false)}
+                />
             )}
         </div>
     );
