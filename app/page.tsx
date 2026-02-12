@@ -1,6 +1,8 @@
 import { CalculatorForm } from "@/components/calculator/CalculatorForm";
 import { NavMenu } from "@/components/ui/NavMenu";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
